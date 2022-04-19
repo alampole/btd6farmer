@@ -59,3 +59,12 @@ Press f11 to get printed infromation on how the bot is doing
 ## Issues
 Currently there is a bug in BTD 6 where the keybinds stop working if alt+tab is pressed. If by some reason this bug occurs. Please press alt ingame after starting the script otherwise the script wont be able to place towers.
 
+# Current Todos:
+- Prevent bot from starting if on main menu
+- During collection events click on all the "insta monkeys" and not on specific locations
+- click on all popups
+- If game is not open ask if program should open and start
+- Pause bot and enter menu if user presses a pause key *(eg ctrl+p)* press ESC to continue
+
+### Other things to fix
+- Fix #4
