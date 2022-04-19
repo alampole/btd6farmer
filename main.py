@@ -1,7 +1,4 @@
-from ast import arg
 import os, csv, re, time
-from pstats import Stats
-from pydoc import cli
 import pytesseract
 pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
 
