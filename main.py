@@ -1,11 +1,16 @@
-import os, csv, re, time
+import os
+import csv
+import re
+import time
 import pytesseract
 pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
 
 import cv2
 import numpy as np
 
-import pyautogui, mouse, keyboard
+import pyautogui
+import mouse
+import keyboard
 pyautogui.FAILSAFE = True # When mouse is moved to top left, program will exit
 
 
