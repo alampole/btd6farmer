@@ -17,13 +17,15 @@ if sys.platform == "win32":
 
 import log
 import static
-import l_utils as utils
 
-class Bot():
+from uiput import UIput
+
+class Bot(UIput):
     def __init__(self, debug=False):
         # Change to current Directory
         os.chdir(os.path.dirname(os.path.abspath(__file__)))
-        self.width, self.height = pyautogui.size()
+
+        super().__init__()
 
         self.start_time = time.time()
         self.running = True
@@ -43,22 +45,18 @@ class Bot():
         self.obyn_hero_path = f"Support_Files\\{str(self.height)}_obyn.png"
         self.insta_monkey = f"Support_Files\\{str(self.height)}_instamonkey.png"
 
-        self.statDict = {
-            "Current_Round": None,
-            "Last_Upgraded": None,
-            "Last_Target_Change": None,
-            "Last_Placement": None,
-            "Uptime": 0
-        }
+    def get_current_round(self):
+        """
+            Uses pytesseract to find the current round of a game returns None if no round is found
 
-    def getRound(self):
-        # BYT TILL https://pypi.org/project/tesserocr/
-        # https://stackoverflow.com/questions/66334737/pytesseract-is-very-slow-for-real-time-ocr-any-way-to-optimise-my-code
-        # eller kanske inte  "I did some comparative tests between pytesseract and tesserocr, but the performance is not as different as said. – "
-        # https://www.reddit.com/r/learnpython/comments/kt5zzw/how_to_speed_up_pytesseract_ocr_processing/
+            TODO: change to 
+                https://stackoverflow.com/questions/66334737/pytesseract-is-very-slow-for-real-time-ocr-any-way-to-optimise-my-code 
+                or 
+                https://www.reddit.com/r/learnpython/comments/kt5zzw/how_to_speed_up_pytesseract_ocr_processing/
+        """
 
-        top, left = utils.scaling([1850, 35])
-        width, height = utils.scaling([225, 65])
+        top, left = self.scaling([1850, 35])
+        width, height = self.scaling([225, 65])
         img = pyautogui.screenshot(region=(top, left, width, height))
         
         numpyImage = np.array(img)
@@ -84,6 +82,9 @@ class Bot():
         self.running = False
 
     def ingame_loop(self):
+        """
+            Main loop for when bot is ingame
+        """
             
         current_round = -1
         ability_one_timer = time.time()
@@ -104,8 +105,8 @@ class Bot():
             
             # Check for levelup or insta monkey (level 100)
             if self.check_levelup() or self.insta_monkey_check():
-                utils.click(middle_of_screen)
-                utils.click(middle_of_screen)
+                self.click(middle_of_screen)
+                self.click(middle_of_screen)
 
             # Check for finished or failed game
             if self.defeat_check() or self.victory_check():
@@ -122,19 +123,17 @@ class Bot():
                 finished = True
                 continue
 
-            get_round_result = self.getRound()
+            get_round_result = self.get_current_round()
             if isinstance(get_round_result, tuple):
                 current_round, _ = get_round_result 
 
-                self.statDict["Current_Round"] = current_round
-
             # Saftey net; use abilites
             if current_round >= 39 and self.abilityAvaliabe(ability_one_timer, 35):
-                utils.press_key("1")
+                self.press_key("1")
                 ability_one_timer = time.time()
             
             if current_round >= 51 and self.abilityAvaliabe(ability_two_timer, 90):
-                utils.press_key("2")
+                self.press_key("2")
                 ability_two_timer = time.time()
 
             # handle current instruction when current round is equal to instruction round
@@ -145,31 +144,39 @@ class Bot():
                     log.log("Current round", current_round)
 
     def place_tower(self, tower_position, keybind):
-        utils.press_key(keybind) # press keybind
-        utils.click(tower_position) # click on decired location
+        self.press_key(keybind) # press keybind
+        self.click(tower_position) # click on decired location
 
     def upgrade_tower(self, tower_position, upgrade_path):
-        utils.click(tower_position)
+        """
+
+        """
+
+        self.click(tower_position)
         
         # Convert upgrade_path to something usable
         upgrade_path = upgrade_path.split("-")
         top, middle, bottom = tuple(map(int, upgrade_path))
         
         for _ in range(top):
-            utils.press_key(static.upgrade_keybinds["top"])
+            self.press_key(static.upgrade_keybinds["top"])
 
         for _ in range(middle):
-            utils.press_key(static.upgrade_keybinds["middle"])
+            self.press_key(static.upgrade_keybinds["middle"])
 
         for _ in range(bottom):
-            utils.press_key(static.upgrade_keybinds["bottom"])
+            self.press_key(static.upgrade_keybinds["bottom"])
         
-        utils.press_key("esc")
+        self.press_key("esc")
 
     def change_target(self, tower_name, tower_position, target):
+        """
+            
+        """
+
         target_array = target.split(", ")
         
-        utils.click(tower_position)
+        self.click(tower_position)
 
         current_target_index = 0
 
@@ -186,23 +193,23 @@ class Bot():
             # Change target until on correct target
             for n in range(1, target_diff + 1):
                 current_target_index = n
-                utils.press_key("tab")
+                self.press_key("tab")
 
             # Used for microing if length of target array is longer than 1 
             # and the last item of the array is not == to current target
             if len(target_array) > 1 and target_array[-1] != i:
                 time.sleep(3) # Gör att detta specifieras i gameplan
 
-        utils.press_key("esc")
+        self.press_key("esc")
 
     def set_static_target(self, tower_position, target_pos):
-        pyautogui.moveTo(utils.scaling(tower_position))
+        pyautogui.moveTo(self.scaling(tower_position))
         time.sleep(0.5)
         mouse.click(button="left")
 
         time.sleep(1)
 
-        pyautogui.moveTo(utils.scaling(static.button_positions["TARGET_BUTTON_MORTAR"]))
+        pyautogui.moveTo(self.scaling(static.button_positions["TARGET_BUTTON_MORTAR"]))
         
         time.sleep(1)
         mouse.press(button='left')
@@ -211,7 +218,7 @@ class Bot():
 
         time.sleep(1)
 
-        pyautogui.moveTo(utils.scaling(target_pos))
+        pyautogui.moveTo(self.scaling(target_pos))
         time.sleep(0.5)
         mouse.press(button='left')
         time.sleep(0.5)
@@ -219,7 +226,7 @@ class Bot():
 
         time.sleep(1)
 
-        utils.press_key("esc")
+        self.press_key("esc")
 
 
     def handleInstruction(self, instruction):
@@ -252,8 +259,8 @@ class Bot():
                 log.log("Monkey static target change", instruction["MONKEY"])
 
         if instruction["ROUND_START"]:
-            utils.press_key("space")
-            utils.press_key("space")
+            self.press_key("space")
+            self.press_key("space")
 
         # Om den har en specifik target
         if target:
@@ -288,44 +295,45 @@ class Bot():
             if self.DEBUG:
                 log.log("easter collection detected")
 
-            utils.button_click("EASTER_COLLECTION") #DUE TO EASTER EVENT:
+            self.button_click("EASTER_COLLECTION") #DUE TO EASTER EVENT:
             time.sleep(1)
-            utils.button_click("LEFT_INSTA") # unlock insta
+            self.button_click("LEFT_INSTA") # unlock insta
             time.sleep(1)
-            utils.button_click("LEFT_INSTA") # collect insta
+            self.button_click("LEFT_INSTA") # collect insta
             time.sleep(1)
-            utils.button_click("RIGHT_INSTA") # unlock r insta
+            self.button_click("RIGHT_INSTA") # unlock r insta
             time.sleep(1)
-            utils.button_click("RIGHT_INSTA") # collect r insta
+            self.button_click("RIGHT_INSTA") # collect r insta
             time.sleep(1)
-            utils.button_click("F_LEFT_INSTA")
+            self.button_click("F_LEFT_INSTA")
             time.sleep(1)
-            utils.button_click("F_LEFT_INSTA")
+            self.button_click("F_LEFT_INSTA")
             time.sleep(1)
-            utils.button_click("MID_INSTA") # unlock insta
+            self.button_click("MID_INSTA") # unlock insta
             time.sleep(1)
-            utils.button_click("MID_INSTA") # collect insta
+            self.button_click("MID_INSTA") # collect insta
             time.sleep(1)
-            utils.button_click("F_RIGHT_INSTA")
+            self.button_click("F_RIGHT_INSTA")
             time.sleep(1)
-            utils.button_click("F_RIGHT_INSTA")
+            self.button_click("F_RIGHT_INSTA")
             time.sleep(1)
 
             time.sleep(1)
-            utils.button_click("EASTER_CONTINUE")
+            self.button_click("EASTER_CONTINUE")
 
 
             # awe try to click 3 quick times to get out of the easter mode, but also if easter mode not triggered, to open and close profile quick
-            utils.button_click("EASTER_EXIT")
+            self.button_click("EASTER_EXIT")
             time.sleep(1)
         
+    # Does currently do a false positive if any skin is used
     def hero_obyn_check(self):
         found = pyautogui.locateOnScreen(self.obyn_hero_path, confidence=0.9)
         if not found:
-            utils.button_click("HERO_SELECT")
-            utils.button_click("SELECT_OBYN")
-            utils.button_click("CONFIRM_HERO")
-            utils.press_key("esc")
+            self.button_click("HERO_SELECT")
+            self.button_click("SELECT_OBYN")
+            self.button_click("CONFIRM_HERO")
+            self.press_key("esc")
 
     def victory_check(self):
         found = pyautogui.locateOnScreen(self.victory_path, confidence=0.9)
@@ -342,9 +350,9 @@ class Bot():
             return False
 
     def exit_level(self):
-        utils.button_click("VICTORY_CONTINUE")
+        self.button_click("VICTORY_CONTINUE")
         time.sleep(2)
-        utils.button_click("VICTORY_HOME")
+        self.button_click("VICTORY_HOME")
         time.sleep(4)
 
         self.easter_event_check()
@@ -353,15 +361,15 @@ class Bot():
     def select_map(self):
         time.sleep(1)
 
-        utils.button_click("HOME_MENU_START") # Move Mouse and click from Home Menu, Start
-        utils.button_click("EXPERT_SELECTION") # Move Mouse to expert and click
-        utils.button_click("RIGHT_ARROW_SELECTION") # Move Mouse to arrow and click
-        utils.button_click("DARK_CASTLE") # Move Mouse to Dark Castle
-        utils.button_click("HARD_MODE") # Move Mouse to select easy mode
-        utils.button_click("CHIMPS_MODE") # Move mouse to select Standard mode
-        utils.button_click("OVERWRITE_SAVE") # Move mouse to overwrite save if exists
+        self.button_click("HOME_MENU_START") # Move Mouse and click from Home Menu, Start
+        self.button_click("EXPERT_SELECTION") # Move Mouse to expert and click
+        self.button_click("RIGHT_ARROW_SELECTION") # Move Mouse to arrow and click
+        self.button_click("DARK_CASTLE") # Move Mouse to Dark Castle
+        self.button_click("HARD_MODE") # Move Mouse to select easy mode
+        self.button_click("CHIMPS_MODE") # Move mouse to select Standard mode
+        self.button_click("OVERWRITE_SAVE") # Move mouse to overwrite save if exists
         time.sleep(3)
-        utils.button_click("CONFIRM_CHIMPS")
+        self.button_click("CONFIRM_CHIMPS")
 
     def menu_check(self):
         found = pyautogui.locateOnScreen(self.menu_path, confidence=0.9)
@@ -407,9 +415,6 @@ class Bot():
                     elif row[item] == "TRUE":
                         row[item] = True
                     
-                #     print(item, ":\t", row[item],)
-                # print()
-                # print(row)
                 row["POSITION"] = self.__fixCordinates(row["POSITION"])
 
                 if row["TARGET_POS"]:

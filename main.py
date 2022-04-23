@@ -1,8 +1,7 @@
-
 import time
 import sys
+import keyboard
 
-import l_utils
 from bot import Bot
 
 if __name__ == "__main__":
@@ -21,7 +20,7 @@ if __name__ == "__main__":
         print("selecting map")
 
         # Prevent alt+tab bug from happening
-        l_utils.press_key("alt")
+        keyboard.send("alt")
 
         # Choose map
         bot.select_map()   

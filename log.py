@@ -1,6 +1,6 @@
 import json
 import os
-from l_utils import handle_time
+from utils import handle_time
 
 def log_stats(did_win: bool = None, match_time: int | float = 0):
     # Standard dict which will be used if json loads nothing
