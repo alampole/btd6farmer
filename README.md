@@ -1,4 +1,5 @@
 # btd6farmer
+v0.1
 ## Inspired from [RavingSmurfGB](https://github.com/RavingSmurfGB/Py_AutoBloons), some functions is taken from that repo
 
 
@@ -40,6 +41,20 @@ Open up BTD 6 run main.py in cmd\
 Navigate to the homescreen of BTD 6 within 5 seconds of starting the script.
 
 Press f11 to get printed infromation on how the bot is doing
+
+## Ingame monkey requirments
+
+|Monkey|Upgrade|
+|--|--|
+|Monkey Submarine|2-0-3|
+|Dart Monkey|0-0-2|
+|Sniper| 4-0-2 |
+|Spike factory| 0-2-5 & 4-2-0|
+|Monkey village|2-0-2|
+|Boomerang|0-2-4|
+|Glue Gunner|0-2-3|
+|Mortar Monkey|0-0-4|
+|Alchemist|4-2-0|
 
 
 ## Issues
